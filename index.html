@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyber Photo</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    overflow:hidden;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:radial-gradient(circle at top,#34005f,#090012 60%,#000);
+    animation:bg 8s infinite alternate;
+    perspective:1200px;
+    font-family:Arial,sans-serif;
+}
+
+@keyframes bg{
+    from{filter:hue-rotate(0deg);}
+    to{filter:hue-rotate(120deg);}
+}
+
+.blur{
+    position:absolute;
+    width:450px;
+    height:450px;
+    border-radius:50%;
+    filter:blur(120px);
+    opacity:.5;
+    animation:move 12s infinite alternate;
+}
+
+.blur:nth-child(1){
+    background:#00ffff;
+    top:-100px;
+    left:-100px;
+}
+
+.blur:nth-child(2){
+    background:#ff00ff;
+    bottom:-100px;
+    right:-100px;
+}
+
+@keyframes move{
+    from{
+        transform:translate(0,0);
+    }
+    to{
+        transform:translate(200px,-120px);
+    }
+}
+
+.wrapper{
+    position:relative;
+    transform-style:preserve-3d;
+}
+
+img{
+    width:min(900px,90vw);
+    max-height:90vh;
+    object-fit:contain;
+    border-radius:20px;
+    animation:
+        float 5s ease-in-out infinite,
+        glow 2s infinite alternate;
+    transition:.1s;
+}
+
+@keyframes float{
+    0%,100%{
+        transform:translateY(0) rotate(-1deg);
+    }
+    50%{
+        transform:translateY(-18px) rotate(1deg);
+    }
+}
+
+@keyframes glow{
+    from{
+        filter:
+        drop-shadow(0 0 20px cyan)
+        drop-shadow(0 0 50px magenta);
+    }
+    to{
+        filter:
+        drop-shadow(0 0 70px cyan)
+        drop-shadow(0 0 130px magenta)
+        brightness(1.3);
+    }
+}
+
+.glitch{
+    position:absolute;
+    inset:0;
+    background:url("ChatGPT_Image_17_июл._2026_г.__14_16_05-removebg-preview.png") center/contain no-repeat;
+    mix-blend-mode:screen;
+    opacity:.25;
+    pointer-events:none;
+    animation:glitch .15s infinite;
+}
+
+@keyframes glitch{
+    0%{transform:translate(0);}
+    25%{transform:translate(-3px,2px);}
+    50%{transform:translate(3px,-2px);}
+    75%{transform:translate(-2px,-3px);}
+    100%{transform:translate(0);}
+}
+
+canvas{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+}
+
+.info{
+    position:fixed;
+    bottom:20px;
+    color:white;
+    font-size:14px;
+    opacity:.7;
+}
+</style>
+
+</head>
+<body>
+
+<audio id="music" loop>
+    <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<div class="blur"></div>
+<div class="blur"></div>
+
+<canvas id="canvas"></canvas>
+
+<div class="wrapper" id="photo">
+    <img src="ChatGPT_Image_17_июл._2026_г.__14_16_05-removebg-preview.png">
+    <div class="glitch"></div>
+</div>
+
+<div class="info">
+Нажмите в любом месте страницы, чтобы включить музыку 🎵
+</div>
+
+<script>
+const photo=document.getElementById("photo");
+
+document.addEventListener("mousemove",e=>{
+
+let x=(e.clientX/window.innerWidth-.5)*20;
+let y=(e.clientY/window.innerHeight-.5)*20;
+
+photo.style.transform=`rotateY(${x}deg) rotateX(${-y}deg)`;
+
+});
+
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+
+let particles=[];
+
+for(let i=0;i<180;i++){
+
+particles.push({
+
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+r:Math.random()*3+1,
+dx:(Math.random()-.5),
+dy:(Math.random()-.5)
+
+});
+
+}
+
+function draw(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+particles.forEach(p=>{
+
+p.x+=p.dx;
+p.y+=p.dy;
+
+if(p.x<0)p.x=canvas.width;
+if(p.x>canvas.width)p.x=0;
+if(p.y<0)p.y=canvas.height;
+if(p.y>canvas.height)p.y=0;
+
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+ctx.fillStyle=`hsl(${Date.now()/20%360},100%,70%)`;
+ctx.fill();
+
+});
+
+requestAnimationFrame(draw);
+
+}
+
+draw();
+
+window.onresize=()=>{
+
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+
+};
+
+const music=document.getElementById("music");
+music.volume=0.4;
+
+document.addEventListener("click",()=>{
+
+music.play().catch(()=>{});
+
+document.body.animate([
+{filter:"brightness(2)"},
+{filter:"brightness(1)"}
+],{
+duration:300
+});
+
+},{once:true});
+</script>
+
+</body>
+</html>
